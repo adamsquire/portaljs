@@ -113,10 +113,12 @@ export default class CKAN {
     return { datasets, count: responseData.result.count };
   }
 
-  async getDatasetDetails(datasetName: string) {
+  async getDatasetDetails(datasetName: string,     
+    reqOptions: Partial<RequestInit> = {}){
     const response = await fetchRetry(
       `${this.DMS}/api/3/action/package_show?id=${datasetName}`,
-      1
+      1,
+      reqOptions
     );
     const responseData = await response.json();
     if (responseData.success === false) {
@@ -324,15 +326,17 @@ export default class CKAN {
     return resourceMetadata;
   }
 
-  async getResourceInfo(resourceId: string) {
-    const response = await fetch(`${this.DMS}/api/3/action/datastore_info`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ resource_id: resourceId }),
-    });
+  async getResourceInfo(resourceId: string, 
+    reqOptions: Partial<RequestInit> = {}) {
+    // extend request options partial
+    reqOptions.headers = new Headers(reqOptions.headers)
+    reqOptions.headers.append("Accept", "application/json")
+    reqOptions.headers.append("Content-Type", "application/json")
+    reqOptions.method = "POST"
+    reqOptions.body = JSON.stringify({ id: resourceId })
+    const response = await fetch(`${this.DMS}/api/3/action/datastore_info`,
+     {...reqOptions}
+    );
     const responseData = await response.json();
     const resourceInfo: Array<ResourceInfo> = responseData.result;
     return resourceInfo;
