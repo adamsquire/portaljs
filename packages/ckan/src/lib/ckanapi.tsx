@@ -316,10 +316,12 @@ export default class CKAN {
     return responseData.result.records;
   }
 
-  async getResourceMetadata(resourceId: string) {
+  async getResourceMetadata(resourceId: string,  
+    reqOptions: Partial<RequestInit> = {}) {
     const response = await fetchRetry(
       `${this.DMS}/api/3/action/resource_show?id=${resourceId}`,
-      3
+      3,
+      reqOptions
     );
     const responseData = await response.json();
     const resourceMetadata: Resource = responseData.result;
